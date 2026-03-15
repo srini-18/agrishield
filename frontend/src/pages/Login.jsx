@@ -7,12 +7,16 @@ import { FiMail, FiLock, FiShield, FiArrowRight } from 'react-icons/fi';
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+<<<<<<< HEAD
   const [emailError, setEmailError] = useState('');
 
+=======
+>>>>>>> 4e717deb4917eae9612607d148e5f85921e138a6
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
 
+<<<<<<< HEAD
   const validateEmail = (email) => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   };
@@ -27,6 +31,10 @@ const Login = () => {
     }
 
     setEmailError('');
+=======
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+>>>>>>> 4e717deb4917eae9612607d148e5f85921e138a6
     setLoading(true);
     try {
       await login(email, password);
@@ -45,9 +53,15 @@ const Login = () => {
         <div className="absolute top-20 left-20 w-72 h-72 bg-primary-500/10 rounded-full blur-[100px] animate-float"></div>
         <div className="absolute bottom-20 right-20 w-96 h-96 bg-ocean-500/10 rounded-full blur-[120px] animate-float" style={{ animationDelay: '2s' }}></div>
         <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-accent-500/8 rounded-full blur-[80px] animate-float" style={{ animationDelay: '4s' }}></div>
+<<<<<<< HEAD
 
         {/* Grid pattern */}
         <div className="absolute inset-0 opacity-[0.03]"
+=======
+        
+        {/* Grid pattern */}
+        <div className="absolute inset-0 opacity-[0.03]" 
+>>>>>>> 4e717deb4917eae9612607d148e5f85921e138a6
           style={{ backgroundImage: 'radial-gradient(circle, #fff 1px, transparent 1px)', backgroundSize: '30px 30px' }}>
         </div>
       </div>
@@ -75,16 +89,24 @@ const Login = () => {
                 <input
                   type="email"
                   value={email}
+<<<<<<< HEAD
                   onChange={(e) => {
                     setEmail(e.target.value);
                     if (emailError) setEmailError('');
                   }}
                   className={`input-field pl-10 ${emailError ? 'border-red-500/50' : ''}`}
+=======
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="input-field pl-10"
+>>>>>>> 4e717deb4917eae9612607d148e5f85921e138a6
                   placeholder="farmer@agrishield.ai"
                   required
                 />
               </div>
+<<<<<<< HEAD
               {emailError && <p className="text-red-400 text-xs mt-1 ml-1">{emailError}</p>}
+=======
+>>>>>>> 4e717deb4917eae9612607d148e5f85921e138a6
             </div>
 
             <div>

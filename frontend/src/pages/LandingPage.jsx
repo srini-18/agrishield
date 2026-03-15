@@ -231,9 +231,11 @@ const LandingPage = () => {
             <video
               ref={videoRef}
               className="hero-video"
-              src="/hero-agri.mp4"
+              poster="/hero-poster.png"
               autoPlay muted loop playsInline
-            />
+            >
+              <source src="/hero-agri.mp4" type="video/mp4" />
+            </video>
           </div>
 
           {/* Dynamic Video Overlays — start clear, fade to dark/dull as text appears */}

@@ -5,9 +5,13 @@ import { LanguageProvider } from './context/LanguageContext';
 import Layout from './components/Layout';
 import Login from './pages/Login';
 import Register from './pages/Register';
+<<<<<<< HEAD
 import LandingPage from './pages/LandingPage';
 import Dashboard from './pages/Dashboard';
 
+=======
+import Dashboard from './pages/Dashboard';
+>>>>>>> 4e717deb4917eae9612607d148e5f85921e138a6
 import Farms from './pages/Farms';
 import FarmDetail from './pages/FarmDetail';
 import AddFarm from './pages/AddFarm';
@@ -23,7 +27,11 @@ import MarketPrices from './pages/MarketPrices';
 
 const ProtectedRoute = ({ children, roles }) => {
   const { isAuthenticated, user, loading } = useAuth();
+<<<<<<< HEAD
 
+=======
+  
+>>>>>>> 4e717deb4917eae9612607d148e5f85921e138a6
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#0a0f1a]">
@@ -34,10 +42,17 @@ const ProtectedRoute = ({ children, roles }) => {
       </div>
     );
   }
+<<<<<<< HEAD
 
   if (!isAuthenticated) return <Navigate to="/login" />;
   if (roles && !roles.includes(user?.role)) return <Navigate to="/dashboard" />;
 
+=======
+  
+  if (!isAuthenticated) return <Navigate to="/login" />;
+  if (roles && !roles.includes(user?.role)) return <Navigate to="/dashboard" />;
+  
+>>>>>>> 4e717deb4917eae9612607d148e5f85921e138a6
   return children;
 };
 
@@ -61,11 +76,18 @@ function App() {
             }}
           />
           <Routes>
+<<<<<<< HEAD
             <Route path="/login"    element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/"        element={<LandingPage />} />
 
 
+=======
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/" element={<Navigate to="/dashboard" />} />
+            
+>>>>>>> 4e717deb4917eae9612607d148e5f85921e138a6
             <Route path="/dashboard" element={
               <ProtectedRoute><Layout><Dashboard /></Layout></ProtectedRoute>
             } />

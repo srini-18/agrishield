@@ -17,7 +17,10 @@
     "express-validator": "^7.0.1",
     "helmet": "^7.1.0",
     "jsonwebtoken": "^9.0.2",
+<<<<<<< HEAD
     "mongodb": "^7.1.0",
+=======
+>>>>>>> 4e717deb4917eae9612607d148e5f85921e138a6
     "mongoose": "^8.5.0",
     "morgan": "^1.10.0"
   }
