@@ -1,8 +1,12 @@
 import axios from 'axios';
 
 const getBaseURL = () => {
-  const envUrl = import.meta.env.VITE_API_URL;
+  let envUrl = import.meta.env.VITE_API_URL;
   if (!envUrl) return '/api';
+  
+  // Remove trailing slash if present
+  envUrl = envUrl.replace(/\/$/, '');
+  
   return envUrl.endsWith('/api') ? envUrl : `${envUrl}/api`;
 };
 
@@ -21,6 +25,7 @@ api.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+    console.log(`🚀 API Request: ${config.method.toUpperCase()} ${config.baseURL}${config.url}`);
     return config;
   },
   (error) => Promise.reject(error)
