@@ -6,17 +6,12 @@ import { FiUser, FiMail, FiLock, FiPhone, FiShield, FiArrowRight, FiCreditCard }
 
 const Register = () => {
   const [formData, setFormData] = useState({
-<<<<<<< HEAD
     name: '', email: '', password: '', confirmPassword: '', phone: '', role: 'farmer', govId: ''
-=======
-    name: '', email: '', password: '', phone: '', role: 'farmer', govId: ''
->>>>>>> 4e717deb4917eae9612607d148e5f85921e138a6
   });
   const [loading, setLoading] = useState(false);
   const { register } = useAuth();
   const navigate = useNavigate();
 
-<<<<<<< HEAD
   const [errors, setErrors] = useState({});
 
   const validateEmail = (email) => {
@@ -46,15 +41,10 @@ const Register = () => {
         setErrors({ ...errors, [name]: null });
       }
     }
-=======
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
->>>>>>> 4e717deb4917eae9612607d148e5f85921e138a6
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-<<<<<<< HEAD
     
     const newErrors = {};
     if (!validateEmail(formData.email)) {
@@ -73,8 +63,6 @@ const Register = () => {
       return;
     }
 
-=======
->>>>>>> 4e717deb4917eae9612607d148e5f85921e138a6
     setLoading(true);
     try {
       await register(formData);
@@ -147,7 +135,6 @@ const Register = () => {
               </div>
               <div>
                 <label className="label-text">Phone</label>
-<<<<<<< HEAD
                 <div className="relative flex items-center">
                   <span className="absolute left-3 text-white/40 text-sm font-medium pr-2 border-r border-white/10">+91</span>
                   <input 
@@ -160,12 +147,6 @@ const Register = () => {
                   />
                 </div>
                 {errors.phone && <p className="text-red-400 text-[10px] mt-1 ml-1">{errors.phone}</p>}
-=======
-                <div className="relative">
-                  <FiPhone className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30" size={16} />
-                  <input name="phone" value={formData.phone} onChange={handleChange} className="input-field pl-10 text-sm" placeholder="+91 XXXXX" />
-                </div>
->>>>>>> 4e717deb4917eae9612607d148e5f85921e138a6
               </div>
             </div>
 
@@ -173,7 +154,6 @@ const Register = () => {
               <label className="label-text">Email</label>
               <div className="relative">
                 <FiMail className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30" size={16} />
-<<<<<<< HEAD
                 <input 
                   name="email" 
                   type="email" 
@@ -185,10 +165,6 @@ const Register = () => {
                 />
               </div>
               {errors.email && <p className="text-red-400 text-xs mt-1 ml-1">{errors.email}</p>}
-=======
-                <input name="email" type="email" value={formData.email} onChange={handleChange} className="input-field pl-10" placeholder="you@example.com" required />
-              </div>
->>>>>>> 4e717deb4917eae9612607d148e5f85921e138a6
             </div>
 
             <div>
@@ -200,7 +176,6 @@ const Register = () => {
             </div>
 
             <div>
-<<<<<<< HEAD
               <label className="label-text">Confirm Password</label>
               <div className="relative">
                 <FiLock className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30" size={16} />
@@ -218,8 +193,6 @@ const Register = () => {
             </div>
 
             <div>
-=======
->>>>>>> 4e717deb4917eae9612607d148e5f85921e138a6
               <label className="label-text">Government ID (Aadhaar / National ID)</label>
               <div className="relative">
                 <FiCreditCard className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30" size={16} />
@@ -234,10 +207,6 @@ const Register = () => {
                 <>Create Account <FiArrowRight size={18} /></>
               )}
             </button>
-<<<<<<< HEAD
-
-=======
->>>>>>> 4e717deb4917eae9612607d148e5f85921e138a6
           </form>
 
           <p className="text-center text-white/40 text-sm mt-6">
