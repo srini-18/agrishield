@@ -39,9 +39,10 @@ router.post('/register', [
       token,
       user: user.toJSON()
     });
+    return;
   } catch (err) {
     console.error(err);
-    res.status(500).json({ success: false, message: 'Server error' });
+    return res.status(500).json({ success: false, message: 'Server error' });
   }
 });
 
@@ -76,9 +77,10 @@ router.post('/login', [
       token,
       user: user.toJSON()
     });
+    return;
   } catch (err) {
     console.error(err);
-    res.status(500).json({ success: false, message: 'Server error' });
+    return res.status(500).json({ success: false, message: 'Server error' });
   }
 });
 

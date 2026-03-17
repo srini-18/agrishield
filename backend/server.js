@@ -21,9 +21,22 @@ app.use('/api/', limiter);
 
 // CORS configuration
 const corsOptions = {
-  origin: process.env.NODE_ENV === 'production' 
-    ? [process.env.FRONTEND_URL] 
-    : ['http://localhost:5173', 'http://localhost:3000'],
+  origin: (origin, callback) => {
+    const allowedOrigins = [
+      process.env.FRONTEND_URL,
+      'http://localhost:5173',
+      'http://localhost:3000'
+    ].filter(Boolean);
+    
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      console.warn(`Blocked by CORS: ${origin}`);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
   optionsSuccessStatus: 200
 };
 app.use(cors(corsOptions));
@@ -45,6 +58,14 @@ const connectDB = async () => {
 connectDB();
 
 // Routes
+app.get('/', (req, res) => {
+  res.json({
+    message: 'Welcome to AgriShield AI API',
+    status: 'running',
+    health: '/api/health'
+  });
+});
+
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/farmers', require('./routes/farmers'));
 app.use('/api/farms', require('./routes/farms'));
@@ -61,6 +82,14 @@ app.get('/api/health', (req, res) => {
     service: 'AgriShield AI Backend',
     timestamp: new Date().toISOString(),
     db: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
+  });
+});
+
+// 404 Handler for unmatched routes
+app.use((req, res) => {
+  res.status(404).json({
+    success: false,
+    message: `Route not found: ${req.originalUrl}`
   });
 });
 
