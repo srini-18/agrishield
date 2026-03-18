@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import {
   FiShield, FiCloud, FiTrendingUp, FiMap, FiBarChart2,
   FiCheckCircle, FiArrowRight, FiMenu, FiX, FiStar,
@@ -111,8 +112,15 @@ const TestimonialCard = ({ name, location, text, stars }) => (
 const LandingPage = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [navScrolled, setNavScrolled] = useState(false);
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const heroRef = useRef(null);
   const videoRef = useRef(null);
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
 
   // Strict JS Scroll lock sequence
   const scrollProgress = useScrollLockSequence();
@@ -201,8 +209,17 @@ const LandingPage = () => {
             <a href="#testimonials" className="nav-link">Stories</a>
           </div>
           <div className="nav-ctas">
-            <Link to="/login"    className="nav-btn-ghost">Login</Link>
-            <Link to="/register" className="nav-btn-primary">Get Started <FiArrowRight size={14} /></Link>
+            {user ? (
+              <>
+                <Link to="/dashboard" className="nav-btn-ghost">Dashboard</Link>
+                <button onClick={handleLogout} className="nav-btn-primary">Logout</button>
+              </>
+            ) : (
+              <>
+                <Link to="/login" className="nav-btn-ghost">Login</Link>
+                <Link to="/register" className="nav-btn-primary">Get Started <FiArrowRight size={14} /></Link>
+              </>
+            )}
           </div>
           <button className="nav-mobile-toggle" onClick={() => setMenuOpen(!menuOpen)}>
             {menuOpen ? <FiX size={22} /> : <FiMenu size={22} />}
@@ -213,8 +230,17 @@ const LandingPage = () => {
             <a href="#features"     onClick={() => setMenuOpen(false)} className="mobile-link">Features</a>
             <a href="#stats"        onClick={() => setMenuOpen(false)} className="mobile-link">Impact</a>
             <a href="#testimonials" onClick={() => setMenuOpen(false)} className="mobile-link">Stories</a>
-            <Link to="/login"       onClick={() => setMenuOpen(false)} className="mobile-link">Login</Link>
-            <Link to="/register"    onClick={() => setMenuOpen(false)} className="nav-btn-primary text-center mt-2">Get Started</Link>
+            {user ? (
+              <>
+                <Link to="/dashboard" onClick={() => setMenuOpen(false)} className="mobile-link">Dashboard</Link>
+                <button onClick={() => { handleLogout(); setMenuOpen(false); }} className="nav-btn-primary text-center mt-2">Logout</button>
+              </>
+            ) : (
+              <>
+                <Link to="/login"       onClick={() => setMenuOpen(false)} className="mobile-link">Login</Link>
+                <Link to="/register"    onClick={() => setMenuOpen(false)} className="nav-btn-primary text-center mt-2">Get Started</Link>
+              </>
+            )}
           </div>
         )}
       </nav>
@@ -319,10 +345,21 @@ const LandingPage = () => {
             </p>
 
             <div className="hero-actions">
-              <Link to="/register" className="hero-btn-primary">
-                Start for Free <FiArrowRight size={18} />
-              </Link>
-              <Link to="/login" className="hero-btn-ghost">Sign In</Link>
+              {user ? (
+                <>
+                  <Link to="/dashboard" className="hero-btn-primary">
+                    Go to Dashboard <FiArrowRight size={18} />
+                  </Link>
+                  <button onClick={handleLogout} className="hero-btn-ghost">Logout</button>
+                </>
+              ) : (
+                <>
+                  <Link to="/register" className="hero-btn-primary">
+                    Start for Free <FiArrowRight size={18} />
+                  </Link>
+                  <Link to="/login" className="hero-btn-ghost">Sign In</Link>
+                </>
+              )}
             </div>
 
             <div className="hero-trust">
@@ -437,8 +474,17 @@ const LandingPage = () => {
           <div className="footer-links">
             <a href="#features"  className="footer-link">Features</a>
             <a href="#stats"     className="footer-link">Impact</a>
-            <Link to="/login"    className="footer-link">Login</Link>
-            <Link to="/register" className="footer-link">Register</Link>
+            {user ? (
+              <>
+                <Link to="/dashboard" className="footer-link">Dashboard</Link>
+                <button onClick={handleLogout} className="footer-link">Logout</button>
+              </>
+            ) : (
+              <>
+                <Link to="/login"    className="footer-link">Login</Link>
+                <Link to="/register" className="footer-link">Register</Link>
+              </>
+            )}
           </div>
         </div>
       </footer>
