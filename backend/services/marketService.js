@@ -2,6 +2,22 @@ const axios = require('axios');
 
 const STATES = ['Haryana', 'MP', 'Gujarat', 'UP', 'Bihar', 'Tamil Nadu', 'Maharashtra', 'Karnataka', 'Rajasthan', 'Andhra Pradesh', 'Assam', 'Kerala', 'Delhi'];
 
+const DISTRICTS = {
+    'Haryana': ['Karnal', 'Hisar', 'Ambala', 'Sirsa'],
+    'MP': ['Indore', 'Bhopal', 'Gwalior', 'Jabalpur'],
+    'Gujarat': ['Rajkot', 'Ahmedabad', 'Surat', 'Vadodara'],
+    'UP': ['Agra', 'Lucknow', 'Kanpur', 'Bareilly'],
+    'Bihar': ['Patna', 'Gaya', 'Muzaffarpur', 'Bhagalpur'],
+    'Tamil Nadu': ['Erode', 'Chennai', 'Coimbatore', 'Madurai'],
+    'Maharashtra': ['Nashik', 'Pune', 'Mumbai', 'Nagpur'],
+    'Karnataka': ['Kolar', 'Bangalore', 'Mysore', 'Hubli'],
+    'Rajasthan': ['Jaipur', 'Jodhpur', 'Udaipur', 'Kota'],
+    'Andhra Pradesh': ['Guntur', 'Vijayawada', 'Visakhapatnam', 'Nellore'],
+    'Assam': ['Guwahati', 'Dibrugarh', 'Silchar', 'Jorhat'],
+    'Kerala': ['Kochi', 'Thiruvananthapuram', 'Kozhikode', 'Thrissur'],
+    'Delhi': ['Azadpur', 'Najafgarh', 'Narela']
+};
+
 const CROP_BASE = [
     { crop: 'rice', categories: 'Cereals', units: 'Quintal', varieties: ['Basmati', 'Kinki', 'Sona Masuri'], basePrice: 3800 },
     { crop: 'wheat', categories: 'Cereals', units: 'Quintal', varieties: ['Sarbati', 'Lok-1', 'Pissi'], basePrice: 2200 },
@@ -30,30 +46,26 @@ const generateMockData = () => {
     let idCounter = 1;
     
     STATES.forEach(state => {
-        CROP_BASE.forEach(base => {
-            // Assign a realistic market name per state
-            const markets = {
-                'Haryana': 'Karnal', 'MP': 'Indore', 'Gujarat': 'Rajkot', 'UP': 'Agra', 
-                'Bihar': 'Gulabbagh', 'Tamil Nadu': 'Erode', 'Maharashtra': 'Nashik', 
-                'Karnataka': 'Kolar', 'Rajasthan': 'Jaipur', 'Andhra Pradesh': 'Guntur', 
-                'Assam': 'Guwahati', 'Kerala': 'Kochi', 'Delhi': 'Azadpur'
-            };
-
-            const demandLevels = ['high', 'medium', 'low'];
-            // Create some regional price variation (+/- 15%)
-            const priceVariation = 0.85 + (Math.random() * 0.3);
-            
-            data.push({
-                id: idCounter++,
-                crop: base.crop,
-                variety: base.varieties[Math.floor(Math.random() * base.varieties.length)],
-                market: markets[state] || 'Main Mandi',
-                state: state,
-                price: Math.floor(base.basePrice * priceVariation),
-                unit: base.units,
-                change: parseFloat((Math.random() * 10 - 5).toFixed(1)),
-                category: base.categories,
-                demand: demandLevels[Math.floor(Math.random() * demandLevels.length)]
+        const districts = DISTRICTS[state] || ['Main Mandi'];
+        districts.forEach(district => {
+            CROP_BASE.forEach(base => {
+                const demandLevels = ['high', 'medium', 'low'];
+                // Create some regional price variation (+/- 20%)
+                const priceVariation = 0.8 + (Math.random() * 0.4);
+                
+                data.push({
+                    id: idCounter++,
+                    crop: base.crop,
+                    variety: base.varieties[Math.floor(Math.random() * base.varieties.length)],
+                    market: `${district} Mandi`,
+                    district: district,
+                    state: state,
+                    price: Math.floor(base.basePrice * priceVariation),
+                    unit: base.units,
+                    change: parseFloat((Math.random() * 8 - 4).toFixed(1)),
+                    category: base.categories,
+                    demand: demandLevels[Math.floor(Math.random() * demandLevels.length)]
+                });
             });
         });
     });
@@ -102,10 +114,58 @@ const getMarketPrices = async () => {
     }
 };
 
-// Helper for simulated demand
-const getSimulatedDemand = (commodity) => {
-    const demands = ['high', 'medium', 'low'];
-    return demands[Math.floor(Math.random() * demands.length)];
+/**
+ * Get Market Trends and AI Predictions for a specific crop
+ * @param {string} crop Name of the crop
+ * @returns {Promise<Object>} Historical trends and future predictions
+ */
+const getMarketTrends = async (crop) => {
+    const base = CROP_BASE.find(c => c.crop.toLowerCase() === crop.toLowerCase()) || CROP_BASE[0];
+    const history = [];
+    const now = new Date();
+    
+    // Generate 30 days of history
+    for (let i = 30; i >= 0; i--) {
+        const date = new Date(now);
+        date.setDate(date.getDate() - i);
+        // Seasonal variation + random noise
+        const seasonalFactor = 1 + Math.sin((date.getMonth() / 12) * Math.PI * 2) * 0.1;
+        const noise = 0.95 + Math.random() * 0.1;
+        history.push({
+            date: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+            price: Math.floor(base.basePrice * seasonalFactor * noise),
+            type: 'history'
+        });
+    }
+
+    // AI Prediction Logics: 7 days forecast
+    const predictions = [];
+    const lastPrice = history[history.length - 1].price;
+    // Simple "AI" trend detection (is it going up or down lately?)
+    const recentTrend = (lastPrice - history[history.length - 5].price) / 5;
+    
+    for (let i = 1; i <= 7; i++) {
+        const date = new Date(now);
+        date.setDate(date.getDate() + i);
+        // Extrapolate trend but add increasing uncertainty
+        const uncertainty = 1 + (Math.random() - 0.5) * (i * 0.02);
+        const predictedPrice = Math.floor((lastPrice + (recentTrend * i)) * uncertainty);
+        
+        predictions.push({
+            date: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+            price: predictedPrice,
+            type: 'prediction'
+        });
+    }
+
+    return {
+        crop: base.crop,
+        history,
+        predictions,
+        insight: recentTrend > 0 
+            ? "Market shows a bullish trend. Prices expected to rise due to seasonal demand." 
+            : "Stable supply levels indicate a slight cooling of prices in the coming week."
+    };
 };
 
-module.exports = { getMarketPrices };
+module.exports = { getMarketPrices, getMarketTrends };

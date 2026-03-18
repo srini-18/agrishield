@@ -14,12 +14,45 @@ const MarketPrices = () => {
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState('table'); // 'table', 'market', or 'demand'
 
-  // Regions available in mock data
+  // Regions and Districts mapping
   const REGIONS = ['All', 'Haryana', 'MP', 'Gujarat', 'UP', 'Bihar', 'Tamil Nadu', 'Maharashtra', 'Karnataka', 'Rajasthan', 'Andhra Pradesh', 'Assam', 'Kerala', 'Delhi'];
+  
+  const DISTRICTS = {
+    'All': [],
+    'Haryana': ['Karnal', 'Hisar', 'Ambala', 'Sirsa'],
+    'MP': ['Indore', 'Bhopal', 'Gwalior', 'Jabalpur'],
+    'Gujarat': ['Rajkot', 'Ahmedabad', 'Surat', 'Vadodara'],
+    'UP': ['Agra', 'Lucknow', 'Kanpur', 'Bareilly'],
+    'Bihar': ['Patna', 'Gaya', 'Muzaffarpur', 'Bhagalpur'],
+    'Tamil Nadu': ['Erode', 'Chennai', 'Coimbatore', 'Madurai'],
+    'Maharashtra': ['Nashik', 'Pune', 'Mumbai', 'Nagpur'],
+    'Karnataka': ['Kolar', 'Bangalore', 'Mysore', 'Hubli'],
+    'Rajasthan': ['Jaipur', 'Jodhpur', 'Udaipur', 'Kota'],
+    'Andhra Pradesh': ['Guntur', 'Vijayawada', 'Visakhapatnam', 'Nellore'],
+    'Assam': ['Guwahati', 'Dibrugarh', 'Silchar', 'Jorhat'],
+    'Kerala': ['Kochi', 'Thiruvananthapuram', 'Kozhikode', 'Thrissur'],
+    'Delhi': ['Azadpur', 'Najafgarh', 'Narela']
+  };
+
+  const [district, setDistrict] = useState('All');
+  const [selectedCrop, setSelectedCrop] = useState('rice');
+  const [trends, setTrends] = useState([]);
+  const [trendInsight, setTrendInsight] = useState('');
+  const [trendLoading, setTrendLoading] = useState(false);
 
   useEffect(() => {
     fetchPrices();
+    fetchTrends(selectedCrop);
   }, []);
+
+  useEffect(() => {
+    fetchTrends(selectedCrop);
+  }, [selectedCrop]);
+
+  // Reset district when region changes
+  useEffect(() => {
+    setDistrict('All');
+  }, [region]);
 
   const fetchPrices = async () => {
     setLoading(true);
@@ -33,6 +66,23 @@ const MarketPrices = () => {
       toast.error('Failed to connect to live market API. Using offline data.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchTrends = async (crop) => {
+    setTrendLoading(true);
+    try {
+      const response = await api.get(`/market/trends/${crop}`);
+      if (response.data.success) {
+        const { history, predictions, insight } = response.data.data;
+        // Combine history and predictions for the chart
+        setTrends([...history, ...predictions]);
+        setTrendInsight(insight);
+      }
+    } catch (error) {
+      console.error('Error fetching trends:', error);
+    } finally {
+      setTrendLoading(false);
     }
   };
 
@@ -51,11 +101,12 @@ const MarketPrices = () => {
     return prices.filter(p => 
       (category === 'All' || p.category === category) &&
       (region === 'All' || p.state === region) &&
+      (district === 'All' || p.district === district) &&
       (p.crop.toLowerCase().includes(searchTerm.toLowerCase()) || 
        p.market.toLowerCase().includes(searchTerm.toLowerCase()) ||
        p.state.toLowerCase().includes(searchTerm.toLowerCase()))
     );
-  }, [searchTerm, category, region, prices]);
+  }, [searchTerm, category, region, district, prices]);
 
   // Group filtered prices by market
   const markets = useMemo(() => {
@@ -146,47 +197,103 @@ const MarketPrices = () => {
         {/* Trend Chart */}
         <div className="lg:col-span-2 glass-card p-6">
           <div className="flex items-center justify-between mb-6">
-            <div>
-              <h2 className="section-title mb-1">{t('market.trendTitle')} (Rice)</h2>
-              <p className="text-xs text-white/40">Average market price over last 6 months</p>
+            <div className="flex items-center gap-4">
+              <div>
+                <h2 className="section-title mb-1 capitalize">{t('market.trendTitle')} ({selectedCrop})</h2>
+                <p className="text-xs text-white/40">30-day history with 7-day AI prediction</p>
+              </div>
+              <select 
+                value={selectedCrop}
+                onChange={(e) => setSelectedCrop(e.target.value)}
+                className="bg-white/5 border border-white/10 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-primary-500 transition-colors capitalize"
+              >
+                {['rice', 'wheat', 'maize', 'cotton', 'soybean', 'mustard', 'onion', 'potato', 'tomato'].map(c => (
+                  <option key={c} value={c} className="bg-[#0a0f1a]">{c}</option>
+                ))}
+              </select>
             </div>
             <div className="flex items-center gap-2 px-3 py-1 bg-primary-500/10 rounded-lg text-primary-400 border border-primary-500/20">
-              <FiTrendingUp size={14} />
-              <span className="text-sm font-bold">+10.5%</span>
+              <FiActivity size={14} className={trendLoading ? 'animate-pulse' : ''} />
+              <span className="text-sm font-bold">AI Prediction Active</span>
             </div>
           </div>
-          <div className="h-[250px] w-full">
+          <div className="h-[250px] w-full relative">
+            {trendLoading && (
+              <div className="absolute inset-0 z-10 bg-[#0a0f1a]/50 flex items-center justify-center rounded-xl backdrop-blur-sm">
+                <div className="w-8 h-8 border-3 border-primary-500/20 border-t-primary-500 rounded-full animate-spin"></div>
+              </div>
+            )}
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={trendData}>
+              <AreaChart data={trends}>
                 <defs>
                   <linearGradient id="colorPrice" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/>
                     <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
                   </linearGradient>
+                  <linearGradient id="colorPred" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
+                    <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
+                  </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
                 <XAxis 
-                  dataKey="month" 
+                  dataKey="date" 
                   stroke="rgba(255,255,255,0.3)" 
-                  fontSize={12} 
+                  fontSize={10} 
                   tickLine={false} 
                   axisLine={false}
+                  interval={4}
                 />
                 <YAxis 
                   stroke="rgba(255,255,255,0.3)" 
-                  fontSize={12} 
+                  fontSize={10} 
                   tickLine={false} 
                   axisLine={false}
-                  tickFormatter={(val) => `₹${val/1000}k`}
+                  tickFormatter={(val) => `₹${val}`}
                 />
                 <Tooltip 
                   contentStyle={{ backgroundColor: '#0a0f1a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }}
                   itemStyle={{ color: '#3b82f6' }}
+                  labelStyle={{ color: 'rgba(255,255,255,0.5)', fontSize: '12px', marginBottom: '4px' }}
+                  formatter={(value, name, props) => [
+                    `₹${value}`, 
+                    props.payload.type === 'prediction' ? 'AI Predicted' : 'Market Price'
+                  ]}
                 />
-                <Area type="monotone" dataKey="price" stroke="#3b82f6" strokeWidth={3} fillOpacity={1} fill="url(#colorPrice)" />
+                <Area 
+                  type="monotone" 
+                  dataKey="price" 
+                  stroke="#3b82f6" 
+                  strokeWidth={3} 
+                  fillOpacity={1} 
+                  fill="url(#colorPrice)" 
+                  connectNulls
+                  data={trends.filter(d => d.type === 'history')}
+                />
+                <Area 
+                  type="monotone" 
+                  dataKey="price" 
+                  stroke="#10b981" 
+                  strokeWidth={3} 
+                  strokeDasharray="5 5"
+                  fillOpacity={1} 
+                  fill="url(#colorPred)" 
+                  data={trends.filter(d => d.type === 'prediction' || d === trends[trends.findIndex(i => i.type === 'prediction') - 1])}
+                />
               </AreaChart>
             </ResponsiveContainer>
           </div>
+          {trendInsight && (
+            <div className="mt-4 p-3 bg-white/5 rounded-xl border border-white/10 flex items-start gap-3">
+              <div className="w-8 h-8 rounded-lg bg-primary-500/20 flex items-center justify-center text-primary-400 flex-shrink-0">
+                <FiActivity size={18} />
+              </div>
+              <div>
+                <h4 className="text-xs font-bold text-white mb-0.5">AI Insights & Forecast</h4>
+                <p className="text-[11px] text-white/50 leading-relaxed font-medium">{trendInsight}</p>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Quick Stats */}
@@ -235,29 +342,67 @@ const MarketPrices = () => {
             </div>
           </div>
 
-          {/* Region Filter - Refactored to Pill Style */}
-          <div className="flex flex-col gap-3">
-            <div className="flex items-center gap-2 text-white/40 mb-1">
-              <FiMapPin size={14} className="text-primary-400" />
-              <span className="text-[10px] font-bold uppercase tracking-widest">{t('market.region')}</span>
-            </div>
-            <div className="flex items-center gap-2 overflow-x-auto pb-2 no-scrollbar">
-              <div className="flex gap-1.5">
-                {REGIONS.map(reg => (
-                  <button
-                    key={reg}
-                    onClick={() => setRegion(reg)}
-                    className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all border ${
-                      region === reg 
-                        ? 'bg-primary-500 text-white border-primary-400 shadow-lg shadow-primary-500/20' 
-                        : 'bg-white/5 text-white/40 border-white/5 hover:text-white hover:bg-white/10'
-                    }`}
-                  >
-                    {reg === 'All' ? t('market.allRegions') : reg}
-                  </button>
-                ))}
+          {/* Region & District Filter */}
+          <div className="flex flex-col gap-5">
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 text-white/40 mb-1">
+                <FiMapPin size={14} className="text-primary-400" />
+                <span className="text-[10px] font-bold uppercase tracking-widest">{t('market.region')} (State)</span>
+              </div>
+              <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
+                <div className="flex gap-1.5">
+                  {REGIONS.map(reg => (
+                    <button
+                      key={reg}
+                      onClick={() => setRegion(reg)}
+                      className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all border ${
+                        region === reg 
+                          ? 'bg-primary-500 text-white border-primary-400 shadow-lg shadow-primary-500/20' 
+                          : 'bg-white/5 text-white/40 border-white/5 hover:text-white hover:bg-white/10'
+                      }`}
+                    >
+                      {reg === 'All' ? t('market.allRegions') : reg}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
+
+            {region !== 'All' && DISTRICTS[region] && (
+              <div className="space-y-3 animate-slide-down">
+                <div className="flex items-center gap-2 text-white/40 mb-1">
+                  <FiFilter size={14} className="text-primary-400" />
+                  <span className="text-[10px] font-bold uppercase tracking-widest">Select District</span>
+                </div>
+                <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
+                  <div className="flex gap-1.5">
+                    <button
+                      onClick={() => setDistrict('All')}
+                      className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all border ${
+                        district === 'All' 
+                          ? 'bg-primary-400/20 text-primary-400 border-primary-400/50' 
+                          : 'bg-white/5 text-white/40 border-white/5 hover:text-white'
+                      }`}
+                    >
+                      All Districts
+                    </button>
+                    {DISTRICTS[region].map(dist => (
+                      <button
+                        key={dist}
+                        onClick={() => setDistrict(dist)}
+                        className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all border ${
+                          district === dist 
+                            ? 'bg-primary-400/20 text-primary-400 border-primary-400/50' 
+                            : 'bg-white/5 text-white/40 border-white/5 hover:text-white'
+                        }`}
+                      >
+                        {dist}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
@@ -292,7 +437,7 @@ const MarketPrices = () => {
                   <td className="px-6 py-4">
                     <div className="flex flex-col">
                       <span className="text-xs text-white/70 font-medium">{item.market}</span>
-                      <span className="text-[10px] text-white/30 uppercase tracking-tight">{item.state}</span>
+                      <span className="text-[10px] text-white/30 uppercase tracking-tight">{item.district}, {item.state}</span>
                     </div>
                   </td>
                   <td className="px-6 py-4">
