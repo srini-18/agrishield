@@ -40,6 +40,12 @@ const useScrollLockSequence = () => {
     const increment = 0.0015; // Sensitivity of the scroll wheel
 
     const handleWheel = (e) => {
+      // Disable scroll lock sequence on mobile/tablet
+      if (window.innerWidth < 1024) {
+        document.body.style.overflow = '';
+        return;
+      }
+
       // If we are not at the very top of the page, let natural scrolling happen
       if (window.scrollY > 10 && currentProgress >= 1) return;
 
@@ -64,7 +70,7 @@ const useScrollLockSequence = () => {
     window.addEventListener('wheel', handleWheel, { passive: false });
 
     // Initial check
-    if (window.scrollY === 0) document.body.style.overflow = 'hidden';
+    if (window.scrollY === 0 && window.innerWidth >= 1024) document.body.style.overflow = 'hidden';
 
     return () => {
       window.removeEventListener('wheel', handleWheel);
@@ -137,7 +143,8 @@ const LandingPage = () => {
   // 2. Text Reveal
   const textRevealStart = 0.0;
   const textRevealEnd   = 0.50;
-  const textSubProgress = Math.min(1, scrollProgress / textRevealEnd);
+  // On mobile, show text immediately if sequence is disabled
+  const textSubProgress = window.innerWidth < 1024 ? 1 : Math.min(1, scrollProgress / textRevealEnd);
   const textOpacity     = textSubProgress;
 
   // 3. Card Reveal (Sequential after text)
@@ -164,6 +171,9 @@ const LandingPage = () => {
   // 4. Hero remains fully visible as it scrolls up naturally
   const heroOpacity = 1;
   const heroScale   = 1;
+
+  // For mobile where scrollProgress is 0 (since wheel is disabled)
+  const mobileProgress = window.innerWidth < 1024 ? 1 : scrollProgress;
 
   useEffect(() => {
     const fn = () => setNavScrolled(window.scrollY > 40);
@@ -270,8 +280,8 @@ const LandingPage = () => {
           <div className="hero-overlay-bottom" style={{ opacity: textOpacity }} />
 
           {/* Ambient glow orbs */}
-          <div className="orb orb-1" style={{ transform: `translate3d(0, ${-scrollProgress * 150}px, 0)` }} />
-          <div className="orb orb-2" style={{ transform: `translate3d(0, ${-scrollProgress * 100}px, 0)` }} />
+          <div className="orb orb-1" style={{ transform: `translate3d(0, ${-mobileProgress * 150}px, 0)` }} />
+          <div className="orb orb-2" style={{ transform: `translate3d(0, ${-mobileProgress * 100}px, 0)` }} />
           <div className="orb orb-3" />
 
           {/* ── Floating stat cards (3D Parallax with Sequential Reveal) ── */}
@@ -427,8 +437,8 @@ const LandingPage = () => {
           <div className="stats-grid">
             {stats.map((s) => (
               <div key={s.label} className="stat-box">
-                <div className="stat-icon-wrap"><s.icon size={22} className="text-primary-400" /></div>
-                <div className="stat-value"><AnimatedCounter target={s.value} suffix={s.suffix} prefix={s.prefix || ''} /></div>
+                <div className="stat-icon-wrap mb-4 flex justify-center"><s.icon size={22} className="text-primary-400" /></div>
+                <div className="stat-value text-white"><AnimatedCounter target={s.value} suffix={s.suffix} prefix={s.prefix || ''} /></div>
                 <p className="stat-label">{s.label}</p>
               </div>
             ))}
