@@ -42,12 +42,12 @@ const MarketPrices = () => {
 
   useEffect(() => {
     fetchPrices();
-    fetchTrends(selectedCrop);
+    fetchTrends(selectedCrop, region, district);
   }, []);
 
   useEffect(() => {
-    fetchTrends(selectedCrop);
-  }, [selectedCrop]);
+    fetchTrends(selectedCrop, region, district);
+  }, [selectedCrop, region, district]);
 
   // Reset district when region changes
   useEffect(() => {
@@ -69,10 +69,10 @@ const MarketPrices = () => {
     }
   };
 
-  const fetchTrends = async (crop) => {
+  const fetchTrends = async (crop, state = 'All', dist = 'All') => {
     setTrendLoading(true);
     try {
-      const response = await api.get(`/market/trends/${crop}`);
+      const response = await api.get(`/market/trends/${crop}?state=${state}&district=${dist}`);
       if (response.data.success) {
         const { history, predictions, insight } = response.data.data;
         // Combine history and predictions for the chart

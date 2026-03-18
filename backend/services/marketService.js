@@ -115,25 +115,37 @@ const getMarketPrices = async () => {
 };
 
 /**
- * Get Market Trends and AI Predictions for a specific crop
+ * Get Market Trends and AI Predictions for a specific crop and location
  * @param {string} crop Name of the crop
+ * @param {string} state Name of the state (optional)
+ * @param {string} district Name of the district (optional)
  * @returns {Promise<Object>} Historical trends and future predictions
  */
-const getMarketTrends = async (crop) => {
+const getMarketTrends = async (crop, state = 'All', district = 'All') => {
     const base = CROP_BASE.find(c => c.crop.toLowerCase() === crop.toLowerCase()) || CROP_BASE[0];
     const history = [];
     const now = new Date();
+
+    // Location-based price multiplier (simulated)
+    let locationMultiplier = 1.0;
+    if (state !== 'All') {
+        const stateIndex = STATES.indexOf(state);
+        locationMultiplier = 0.9 + (stateIndex % 3) * 0.1; // Simple deterministic variation
+    }
+    if (district !== 'All') {
+        locationMultiplier += 0.05; // Slightly higher for specific district markets
+    }
     
     // Generate 30 days of history
     for (let i = 30; i >= 0; i--) {
         const date = new Date(now);
         date.setDate(date.getDate() - i);
-        // Seasonal variation + random noise
+        // Seasonal variation + random noise + location factor
         const seasonalFactor = 1 + Math.sin((date.getMonth() / 12) * Math.PI * 2) * 0.1;
         const noise = 0.95 + Math.random() * 0.1;
         history.push({
             date: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-            price: Math.floor(base.basePrice * seasonalFactor * noise),
+            price: Math.floor(base.basePrice * locationMultiplier * seasonalFactor * noise),
             type: 'history'
         });
     }
@@ -141,13 +153,11 @@ const getMarketTrends = async (crop) => {
     // AI Prediction Logics: 7 days forecast
     const predictions = [];
     const lastPrice = history[history.length - 1].price;
-    // Simple "AI" trend detection (is it going up or down lately?)
     const recentTrend = (lastPrice - history[history.length - 5].price) / 5;
     
     for (let i = 1; i <= 7; i++) {
         const date = new Date(now);
         date.setDate(date.getDate() + i);
-        // Extrapolate trend but add increasing uncertainty
         const uncertainty = 1 + (Math.random() - 0.5) * (i * 0.02);
         const predictedPrice = Math.floor((lastPrice + (recentTrend * i)) * uncertainty);
         
@@ -158,13 +168,17 @@ const getMarketTrends = async (crop) => {
         });
     }
 
+    let locationText = state !== 'All' ? ` in ${state}` : ' nationwide';
+    if (district !== 'All') locationText = ` in ${district}, ${state}`;
+
     return {
         crop: base.crop,
+        location: { state, district },
         history,
         predictions,
         insight: recentTrend > 0 
-            ? "Market shows a bullish trend. Prices expected to rise due to seasonal demand." 
-            : "Stable supply levels indicate a slight cooling of prices in the coming week."
+            ? `Market${locationText} shows a bullish trend for ${base.crop}. Local demand is driving prices up.` 
+            : `Stable supply levels${locationText} indicate a slight cooling of ${base.crop} prices in the coming week.`
     };
 };
 

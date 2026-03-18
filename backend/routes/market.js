@@ -32,7 +32,8 @@ router.get('/prices', async (req, res) => {
  */
 router.get('/trends/:crop', async (req, res) => {
     try {
-        const trends = await getMarketTrends(req.params.crop);
+        const { state, district } = req.query;
+        const trends = await getMarketTrends(req.params.crop, state, district);
         res.json({
             success: true,
             data: trends
