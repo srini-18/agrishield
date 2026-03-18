@@ -14,6 +14,8 @@ router.post('/register', [
     .isLength({ min: 6 }).withMessage('Password must be at least 6 characters')
     .matches(/\d/).withMessage('Password must contain at least one number')
     .matches(/[!@#$%^&*(),.?":{}|<>]/).withMessage('Password must contain at least one special character'),
+  body('phone').trim().notEmpty().withMessage('Phone number is required').isLength({ min: 10, max: 15 }).withMessage('Invalid phone number'),
+  body('govId').trim().optional(),
   body('role').optional().isIn(['farmer', 'admin', 'insurer', 'bank'])
 ], async (req, res) => {
   try {

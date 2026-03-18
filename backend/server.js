@@ -18,6 +18,9 @@ const limiter = rateLimit({
   message: { success: false, message: 'Too many requests from this IP, please try again after 15 minutes' }
 });
 app.use('/api/', limiter);
+if (process.env.NODE_ENV === 'production' && !process.env.FRONTEND_URL) {
+  console.warn('⚠️ WARNING: FRONTEND_URL is not set in production. CORS may block requests.');
+}
 
 // CORS configuration
 const corsOptions = {

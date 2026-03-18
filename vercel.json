@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "https://agrishield-09dk.onrender.com"
+      "destination": "https://agrishield-09dk.onrender.com/api/$1"
     },
     {
       "source": "/(.*)",

@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { FiTrendingUp, FiTrendingDown, FiSearch, FiFilter, FiActivity, FiMapPin, FiRefreshCw, FiList, FiGrid, FiArrowRight, FiPieChart } from 'react-icons/fi';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
 import { useLanguage } from '../context/LanguageContext';
-import axios from 'axios';
+import api from '../services/api';
 import toast from 'react-hot-toast';
 
 const MarketPrices = () => {
@@ -24,8 +24,7 @@ const MarketPrices = () => {
   const fetchPrices = async () => {
     setLoading(true);
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-      const response = await axios.get(`${apiUrl}/market/prices`);
+      const response = await api.get('/market/prices');
       if (response.data.success) {
         setPrices(response.data.data);
       }
