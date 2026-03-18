@@ -80,6 +80,10 @@ const Navbar = ({ onToggleMobile, mobileOpen }) => {
             <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-br from-ocean-500 to-ocean-700 flex items-center justify-center">
               <FiUser className="text-white" size={14} />
             </div>
+            <Link to="/" className="hidden lg:flex items-center gap-2 p-2 rounded-lg hover:bg-white/10 text-white/50 hover:text-primary-400 transition-colors" title="Visit Public Website">
+              <FiGlobe size={18} />
+              <span className="text-xs font-semibold">Website</span>
+            </Link>
             <button onClick={handleLogout} className="p-1.5 sm:p-2 rounded-lg hover:bg-white/10 text-white/50 hover:text-red-400 transition-colors" title="Logout">
               <FiLogOut size={18} />
             </button>

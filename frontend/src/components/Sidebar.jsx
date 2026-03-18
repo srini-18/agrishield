@@ -1,8 +1,9 @@
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { FiGrid, FiMap, FiSun, FiCloudRain, FiActivity, FiShield, FiUsers, FiGift, FiBell, FiTrendingUp } from 'react-icons/fi';
+import { FiGrid, FiMap, FiSun, FiCloudRain, FiActivity, FiShield, FiUsers, FiGift, FiBell, FiTrendingUp, FiGlobe } from 'react-icons/fi';
 
 const navItems = [
+  { path: '/', label: 'Visit Website', icon: FiGlobe },
   { path: '/dashboard', label: 'Dashboard', icon: FiGrid },
   { path: '/farms', label: 'Farms', icon: FiMap },
   { path: '/satellite', label: 'Satellite', icon: FiSun },
