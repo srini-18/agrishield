@@ -1,4 +1,5 @@
 import axios from 'axios';
+import toast from 'react-hot-toast';
 
 const getBaseURL = () => {
   let envUrl = import.meta.env.VITE_API_URL;
@@ -38,6 +39,12 @@ api.interceptors.response.use(
       localStorage.removeItem('agrishield_token');
       localStorage.removeItem('agrishield_user');
       window.location.href = '/login';
+    } else if (error.response?.status === 429) {
+      toast.error('Too many requests. Please slow down and try again later.', { id: 'rate-limit' });
+    } else if (error.response?.status >= 500) {
+      toast.error('Server error. Please try again later.', { id: 'server-error' });
+    } else if (error.message === 'Network Error') {
+      toast.error('Network Error: Please check your internet connection.', { id: 'network-error' });
     }
     return Promise.reject(error);
   }

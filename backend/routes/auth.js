@@ -16,7 +16,7 @@ router.post('/register', [
     .matches(/[!@#$%^&*(),.?":{}|<>]/).withMessage('Password must contain at least one special character'),
   body('phone').trim().notEmpty().withMessage('Phone number is required').isLength({ min: 10, max: 15 }).withMessage('Invalid phone number'),
   body('govId').trim().optional(),
-  body('role').optional().isIn(['farmer', 'admin', 'insurer', 'bank'])
+  body('role').optional().isIn(['farmer', 'insurer', 'bank'])
 ], async (req, res) => {
   try {
     const errors = validationResult(req);

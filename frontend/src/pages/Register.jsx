@@ -76,7 +76,6 @@ const Register = () => {
 
   const roles = [
     { value: 'farmer', label: 'Farmer', desc: 'Register farms, monitor crops', icon: '🌾' },
-    { value: 'admin', label: 'Administrator', desc: 'Manage platform & users', icon: '⚙️' },
     { value: 'insurer', label: 'Insurance Provider', desc: 'Manage insurance policies', icon: '🛡️' },
     { value: 'bank', label: 'Financial Institution', desc: 'Assess agricultural credit', icon: '🏦' },
   ];
