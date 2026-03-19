@@ -80,7 +80,7 @@ router.post('/', [
 router.get('/', auth, async (req, res) => {
   try {
     let query = {};
-    if (req.user.role !== 'admin') {
+    if (req.user.role !== 'admin' && req.user.role !== 'insurer') {
       query.owner = req.user._id;
     }
 

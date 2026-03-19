@@ -84,7 +84,7 @@ const getMarketPrices = async () => {
     
     // For this specific request, we force mock data to ensure "all crops in all states"
     // as the live API might be sparse for some combinations
-    if (!apiKey || apiKey === 'your_data_gov_in_api_key_here' || true) {
+    if (!apiKey || apiKey === 'your_data_gov_in_api_key_here') {
         console.log('Serving comprehensive mock market database (All Crops x All States).');
         return MOCK_MARKET_DATA;
     }

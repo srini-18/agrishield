@@ -222,13 +222,6 @@ const translations = {
     'common.loading': 'Loading...',
     'common.search': 'Search',
     'common.language': 'Language',
-
-    // Soil types
-    'soil.clay': 'Clay', 'soil.sandy': 'Sandy', 'soil.loamy': 'Loamy', 'soil.silt': 'Silt', 'soil.peat': 'Peat', 'soil.chalk': 'Chalk', 'soil.other': 'Other',
-    // Crops
-    'crop.rice': 'Rice', 'crop.wheat': 'Wheat', 'crop.corn': 'Corn', 'crop.cotton': 'Cotton', 'crop.sugarcane': 'Sugarcane', 'crop.soybean': 'Soybean', 'crop.other': 'Other',
-    // Irrigation
-    'irr.rainfed': 'Rainfed', 'irr.drip': 'Drip', 'irr.sprinkler': 'Sprinkler', 'irr.flood': 'Flood', 'irr.canal': 'Canal', 'irr.other': 'Other',
   },
 
   hi: {

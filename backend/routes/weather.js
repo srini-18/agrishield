@@ -3,7 +3,7 @@ const router = express.Router();
 const WeatherData = require('../models/WeatherData');
 const Farm = require('../models/Farm');
 const auth = require('../middleware/auth');
-const { getWeatherData, generateHistoricalWeather } = require('../services/weatherService');
+const { getWeatherData, getWeatherForecast, generateHistoricalWeather } = require('../services/weatherService');
 
 // @route   GET /api/weather/:farmId
 // @desc    Get weather data for a farm
@@ -70,6 +70,25 @@ router.get('/:farmId/current', auth, async (req, res) => {
     const weather = await getWeatherData(lat, lng);
 
     res.json({ success: true, data: weather });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// @route   GET /api/weather/:farmId/forecast
+// @desc    Get 5-day weather forecast for a farm
+router.get('/:farmId/forecast', auth, async (req, res) => {
+  try {
+    const farm = await Farm.findById(req.params.farmId);
+    if (!farm) {
+      return res.status(404).json({ success: false, message: 'Farm not found' });
+    }
+
+    const [lng, lat] = farm.location.coordinates;
+    const forecast = await getWeatherForecast(lat, lng);
+
+    res.json({ success: true, count: forecast.length, data: forecast });
   } catch (err) {
     console.error(err);
     res.status(500).json({ success: false, message: 'Server error' });

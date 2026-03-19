@@ -85,7 +85,7 @@ router.get('/policies', auth, async (req, res) => {
     }
 
     const policies = await InsurancePolicy.find(query)
-      .populate('farm', 'name cropType size')
+      .populate('farm', 'name cropType size location')
       .populate('farmer', 'name email')
       .sort({ enrolledAt: -1 });
 
@@ -209,6 +209,9 @@ router.put('/review/:policyId', auth, authorize('admin', 'insurer'), async (req,
     }
 
     policy.status = status;
+    policy.reviewRemarks = remarks || '';
+    policy.reviewedBy = req.user._id;
+    policy.reviewedAt = new Date();
     await policy.save();
 
     res.json({ success: true, data: policy });
